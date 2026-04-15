@@ -18,5 +18,12 @@
 - 500 МБ свободного места
 
 ## 📸 Скриншоты
-<img width="537" height="855" alt="image" src="https://github.com/user-attachments/assets/d8b91de5-fd47-4eac-a9f3-bde4d58f4647" />
+<img width="525" height="850" alt="image" src="https://github.com/user-attachments/assets/4369eb30-3f91-46e0-92cf-fcb606c82022" />
+<img width="527" height="845" alt="image" src="https://github.com/user-attachments/assets/2c4a0d5c-6fb9-499a-879d-349db6feafa1" />
+<img width="531" height="848" alt="image" src="https://github.com/user-attachments/assets/e1711478-10ec-4424-ae28-d1a834478cfd" />
+<img width="526" height="847" alt="image" src="https://github.com/user-attachments/assets/73a81949-5e58-46fe-ab99-17d7539dcb1d" />
+
+
+
+
 
