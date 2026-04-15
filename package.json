@@ -18,7 +18,8 @@
     "directories": { "output": "dist" },
     "win": {
       "target": [{ "target": "nsis", "arch": ["x64"] }],
-      "icon": "icon.ico"
+      "icon": "icon.ico",
+      "artifactName": "truck-finance-setup-${version}.exe"
     },
     "nsis": {
       "oneClick": false,
