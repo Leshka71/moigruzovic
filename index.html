@@ -259,7 +259,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);user-select:
       <div class="bchart"><div style="font-size:14px;font-weight:700;margin-bottom:6px">📤 Экспорт данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Сохранить все данные в JSON-файл</div><button class="btn-add reys" onclick="exportData()">Скачать резервную копию</button></div>
       <div class="bchart"><div style="font-size:14px;font-weight:700;margin-bottom:6px">📥 Импорт данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Восстановить из резервной копии</div><input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importFromFile(event)"><button class="btn-add benzin" onclick="document.getElementById('importFileInput').click()">Загрузить резервную копию</button></div>
       <div class="bchart" style="border-color:var(--red)"><div style="font-size:14px;font-weight:700;margin-bottom:6px;color:var(--red)">🗑 Сброс данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Удалить все рейсы и расходы навсегда</div><button class="btn-add other" onclick="showResetModal()">Сбросить все данные</button></div>
-      <div class="bchart"><div style="font-size:12px;color:var(--text3)">Мой Грузовик v1.0 — локальная версия</div></div>
+      <div class="bchart"><div style="font-size:12px;color:var(--text3)">Мой Грузовик v1.0.1 — локальная версия</div></div>
     </div>
   </div>
 
@@ -576,6 +576,21 @@ window.addEventListener('DOMContentLoaded',function(){
   onEnter(['bAmt','bNote'],addFuel);
   onEnter(['oAmt','oDesc'],addExpense);
   window.api.load().then(function(res){if(res.ok)data=res.data;refresh();});
+
+  // Auto-update date fields every minute and on window focus
+  function refreshDates(){
+    ['rDate','bDate','oDate'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){
+        var iso=today();
+        var d=new Date();
+        el.dataset.raw=iso;
+        el.value=String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+      }
+    });
+  }
+  window.addEventListener('focus', refreshDates);
+  setInterval(refreshDates, 60000);
 });
 </script>
 </body>
