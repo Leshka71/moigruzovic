@@ -1,0 +1,46 @@
+{
+  "name": "truck-finance",
+  "version": "1.0.0",
+  "description": "Учёт доходов и расходов грузоперевозчика в Radmir",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "ru.truck.finance",
+    "productName": "Мой Грузовик",
+    "publish": {
+      "provider": "github",
+      "owner": "Leshka71",
+      "repo": "moigruzovic"
+    },
+    "directories": { "output": "dist" },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerLanguages": ["ru_RU"],
+      "language": "1049",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Мой Грузовик",
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "uninstallDisplayName": "Мой Грузовик",
+      "differentialPackage": false
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}

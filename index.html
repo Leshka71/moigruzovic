@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мой Грузовик</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0d11;--bg2:#13131a;--bg3:#1a1a24;--surface:#1e1e2a;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);--text:#eeeef5;--text2:#8888a8;--text3:#55556a;--green:#4ade80;--gdim:rgba(74,222,128,.13);--gglow:rgba(74,222,128,.22);--red:#f87171;--rdim:rgba(248,113,113,.13);--rglow:rgba(248,113,113,.22);--yellow:#fbbf24;--ydim:rgba(251,191,36,.13);--blue:#60a5fa;--bdim:rgba(96,165,250,.13);--accent:#a78bfa;--adim:rgba(167,139,250,.15);--r:13px;--rs:8px;--font:'Nunito',sans-serif;--mono:'JetBrains Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);user-select:none;display:flex;flex-direction:column;}
+.tb{height:38px;background:var(--bg2);border-bottom:.5px solid var(--border);display:flex;align-items:center;padding:0 14px;-webkit-app-region:drag;flex-shrink:0;}
+.tb-logo{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;}
+.tb-icon{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#a78bfa,#60a5fa);display:flex;align-items:center;justify-content:center;font-size:13px;}
+.tb-sp{flex:1;}
+.wc{display:flex;gap:4px;-webkit-app-region:no-drag;}
+.wb{width:26px;height:26px;border-radius:6px;border:none;background:transparent;color:var(--text3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+.wb:hover{background:var(--bg3);color:var(--text);}
+.wb.cl:hover{background:var(--rdim);color:var(--red);}
+.app{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 14px 90px;height:0;}
+.app::-webkit-scrollbar{width:3px;}
+.app::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.blobs{position:fixed;inset:38px 0 0 0;pointer-events:none;z-index:0;overflow:hidden;}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.1;animation:fl 9s ease-in-out infinite;}
+.b1{width:280px;height:280px;background:#a78bfa;top:-60px;left:-60px;}
+.b2{width:240px;height:240px;background:#4ade80;bottom:-50px;right:-50px;animation-delay:3s;}
+.b3{width:180px;height:180px;background:#60a5fa;top:45%;left:55%;animation-delay:6s;}
+@keyframes fl{0%,100%{transform:translate(0,0)scale(1);}40%{transform:translate(20px,-15px)scale(1.06);}70%{transform:translate(-12px,18px)scale(.94);}}
+.content{position:relative;z-index:1;padding-top:12px;}
+.top-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.top-card{background:var(--surface);border:.5px solid var(--border2);border-radius:var(--r);padding:14px 15px;position:relative;overflow:hidden;}
+.top-card.main{grid-column:1/-1;padding:18px 18px 14px;}
+.tc-glow{position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;filter:blur(25px);opacity:.5;}
+.tc-lbl{font-size:12px;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
+.tc-val{font-family:var(--mono);font-weight:700;}
+.tc-val.lg{font-size:36px;letter-spacing:-1px;}
+.tc-val.md{font-size:22px;}
+.tc-val.green{color:var(--green);}
+.tc-val.red{color:var(--red);}
+.tc-sub{font-size:12px;color:var(--text2);margin-top:4px;}
+.mbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.mname{font-size:13px;font-weight:700;}
+.mbtn{width:28px;height:28px;border-radius:7px;background:var(--surface);border:.5px solid var(--border);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;}
+.mbtn:hover{background:var(--bg3);color:var(--text);}
+.period-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.ptab{padding:5px 12px;border-radius:20px;border:.5px solid var(--border);background:transparent;color:var(--text3);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.ptab.active{background:var(--adim);border-color:var(--accent);color:var(--accent);}
+.form-card{background:var(--surface);border:.5px solid var(--border2);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.form-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:14px;}
+.ftab{padding:7px 4px;border-radius:var(--rs);border:.5px solid var(--border);background:transparent;color:var(--text2);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.ftab.act-reys{background:var(--gdim);border-color:var(--green);color:var(--green);}
+.ftab.act-benzin{background:var(--ydim);border-color:var(--yellow);color:var(--yellow);}
+.ftab.act-other{background:var(--rdim);border-color:var(--red);color:var(--red);}
+.fg{display:flex;flex-direction:column;margin-bottom:9px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px;}
+.flbl{font-size:10px;color:var(--text2);margin-bottom:4px;letter-spacing:.3px;}
+.fi{padding:9px 11px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s;width:100%;}
+.fi:focus{border-color:var(--accent);}
+.fi::placeholder{color:var(--text3);}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px;}
+.chip{padding:4px 9px;border-radius:20px;background:var(--bg3);border:.5px solid var(--border);font-size:11px;cursor:pointer;color:var(--text2);transition:all .15s;}
+.chip:hover,.chip.sel{background:var(--adim);border-color:var(--accent);color:var(--text);}
+.btn-add{width:100%;padding:10px;border:none;border-radius:var(--rs);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-add.reys{background:var(--gdim);border:.5px solid var(--green);color:var(--green);}
+.btn-add.reys:hover{background:var(--gglow);}
+.btn-add.benzin{background:var(--ydim);border:.5px solid var(--yellow);color:var(--yellow);}
+.btn-add.benzin:hover{background:rgba(251,191,36,.28);}
+.btn-add.other{background:var(--rdim);border:.5px solid var(--red);color:var(--red);}
+.btn-add.other:hover{background:var(--rglow);}
+.elist{display:flex;flex-direction:column;gap:6px;}
+.entry{display:flex;align-items:center;gap:10px;background:var(--surface);border:.5px solid var(--border);border-radius:var(--r);padding:11px 13px;transition:border-color .2s,transform .15s;animation:si .2s ease;}
+@keyframes si{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.entry:hover{border-color:var(--border2);transform:translateY(-1px);}
+.eic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.eic.trip{background:var(--gdim);}
+.eic.fuel{background:var(--ydim);}
+.eic.exp{background:var(--rdim);}
+.einfo{flex:1;min-width:0;}
+.edesc{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.edate{font-size:13px;color:var(--text2);margin-top:4px;font-weight:500;}
+.eamt{font-family:var(--mono);font-size:13px;font-weight:600;flex-shrink:0;}
+.eamt.green{color:var(--green);}
+.eamt.red{color:var(--red);}
+.eamt.yellow{color:var(--yellow);}
+.delbtn{width:24px;height:24px;border-radius:6px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;flex-shrink:0;}
+.delbtn:hover{background:var(--rdim);color:var(--red);}
+.empty{text-align:center;padding:24px;color:var(--text3);font-size:12px;}
+.empty-ic{font-size:26px;margin-bottom:5px;}
+.date-hdr{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;padding:8px 2px 5px;}
+.more-btn{width:100%;padding:9px;border-radius:10px;border:.5px dashed var(--border2);background:transparent;color:var(--text2);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:background .2s;}
+.more-btn:hover{background:var(--bg3);}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,17,.92);backdrop-filter:blur(20px);border-top:.5px solid var(--border);display:flex;padding:8px 16px 12px;justify-content:space-around;z-index:100;}
+.nbtn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--text3);font-family:var(--font);font-size:9px;letter-spacing:.3px;padding:4px 16px;border-radius:8px;transition:all .2s;}
+.nbtn.active{color:var(--accent);}
+.nic{font-size:19px;line-height:1;}
+.htab{padding:7px 14px;border-radius:20px;border:.5px solid var(--border);background:transparent;color:var(--text3);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.htab:hover{color:var(--text2);}
+.htab.active{background:var(--adim);border-color:var(--accent);color:var(--accent);}
+.htab-sort{padding:5px 12px;border-radius:20px;border:.5px solid var(--border);background:transparent;color:var(--text3);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.htab-sort.active{background:var(--surface);border-color:var(--border2);color:var(--text2);}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.sbox{background:var(--surface);border:.5px solid var(--border);border-radius:var(--r);padding:12px 13px;}
+.sbox-lbl{font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:500;}
+.sbox-val{font-size:20px;font-weight:700;font-family:var(--mono);}
+.bchart{background:var(--surface);border:.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.slbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;}
+.btrack{flex:1;background:var(--bg3);border-radius:5px;height:10px;overflow:hidden;}
+.bfill{height:100%;border-radius:5px;transition:width .5s ease;}
+.bfill.g{background:var(--green);}
+.bfill.r{background:var(--red);}
+.dp-input{cursor:pointer;caret-color:transparent;}
+.dp-popup{position:fixed;z-index:600;background:var(--surface);border:.5px solid var(--border2);border-radius:16px;padding:16px;width:260px;box-shadow:0 8px 40px rgba(0,0,0,.5);animation:mIn .15s ease;}
+.dp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.dp-month-label{font-size:13px;font-weight:700;}
+.dp-nav{display:flex;gap:4px;}
+.dp-nav-btn{width:26px;height:26px;border-radius:7px;border:none;background:var(--bg3);color:var(--text2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.dp-days-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;}
+.dp-day-hdr{font-size:10px;color:var(--text3);text-align:center;padding:2px 0;}
+.dp-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.dp-day{height:30px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;font-family:var(--font);}
+.dp-day:hover{background:var(--bg3);color:var(--text);}
+.dp-day.today{color:var(--accent);font-weight:700;}
+.dp-day.selected{background:var(--accent);color:#fff;font-weight:700;}
+.dp-day.other-month{opacity:.3;}
+.dp-footer{display:flex;justify-content:space-between;margin-top:10px;border-top:.5px solid var(--border);padding-top:10px;}
+.dp-footer-btn{background:none;border:none;font-family:var(--font);font-size:12px;color:var(--accent);cursor:pointer;}
+@keyframes mIn{from{transform:scale(.92);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:999;display:flex;align-items:center;justify-content:center;}
+.modal-box{background:var(--surface);border-radius:18px;padding:28px 24px;width:270px;text-align:center;animation:mIn .2s ease;}
+.modal-ic{font-size:36px;margin-bottom:12px;}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:8px;}
+.modal-text{font-size:12px;color:var(--text2);margin-bottom:22px;line-height:1.6;}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-btn{padding:11px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;border:none;}
+.modal-btn.cancel{background:var(--bg3);border:.5px solid var(--border2);color:var(--text2);}
+.modal-btn.red{background:var(--rdim);border:.5px solid var(--red);color:var(--red);}
+.modal-btn.blue{background:var(--bdim);border:.5px solid var(--blue);color:var(--blue);}
+.toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--surface);border:.5px solid var(--border2);border-radius:20px;padding:8px 16px;font-size:12px;font-weight:600;color:var(--text);opacity:0;transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.screen{display:none;}
+.screen.active{display:block;}
+</style>
+</head>
+<body>
+<div class="tb">
+  <div class="tb-logo"><div class="tb-icon">🚛</div>&nbsp;Мой Грузовик</div>
+  <div class="tb-sp"></div>
+  <div class="wc">
+    <button class="wb" onclick="api.minimize()">─</button>
+    <button class="wb" onclick="api.maximize()">□</button>
+    <button class="wb cl" onclick="api.close()">✕</button>
+  </div>
+</div>
+<div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="app"><div class="content">
+
+  <div id="screenHome" class="screen active">
+    <div class="top-grid">
+      <div class="top-card main">
+        <div class="tc-glow" style="background:#4ade80"></div>
+        <div class="tc-lbl" id="periodLabel">Чистая прибыль за месяц</div>
+        <div class="tc-val lg green" id="netProfit">0 ₽</div>
+      </div>
+      <div class="top-card">
+        <div class="tc-glow" style="background:#4ade80"></div>
+        <div class="tc-lbl">💰 Заработано</div>
+        <div class="tc-val md green" id="totalTrips">0 ₽</div>
+        <div class="tc-sub" id="tripsCount">0 рейсов</div>
+      </div>
+      <div class="top-card">
+        <div class="tc-glow" style="background:#f87171"></div>
+        <div class="tc-lbl">📉 Все расходы</div>
+        <div class="tc-val md red" id="totalExpAll">0 ₽</div>
+        <div class="tc-sub">бензин + прочее</div>
+      </div>
+    </div>
+
+    <div class="mbar">
+      <button class="mbtn" onclick="changePeriod(-1)">&#8249;</button>
+      <div class="mname" id="monthLabel"></div>
+      <button class="mbtn" id="btnNext" onclick="changePeriod(1)">&#8250;</button>
+    </div>
+    <div class="period-tabs">
+      <button class="ptab" id="pDay"   onclick="setPeriod('day')">День</button>
+      <button class="ptab" id="pWeek"  onclick="setPeriod('week')">Неделя</button>
+      <button class="ptab active" id="pMonth" onclick="setPeriod('month')">Месяц</button>
+    </div>
+
+    <div class="form-card">
+      <div class="form-tabs">
+        <button class="ftab act-reys" id="ftReys"   onclick="setTab('reys')">🚛 Рейс</button>
+        <button class="ftab"          id="ftBenzin" onclick="setTab('benzin')">⛽ Бензин</button>
+        <button class="ftab"          id="ftOther"  onclick="setTab('other')">🔧 Расходы</button>
+      </div>
+      <div id="formReys">
+        <div class="fg"><span class="flbl">СУММА ЗАКАЗА (₽)</span><input class="fi" id="rPay" type="text" placeholder="0" inputmode="decimal" oninput="fmtInput(this)"></div>
+        <div class="fg"><span class="flbl">ДАТА</span><input class="fi dp-input" id="rDate" readonly placeholder="дд.мм.гггг" onclick="openDP('rDate',this)"></div>
+        <div class="fg"><span class="flbl">ЗАМЕТКА (необяз.)</span><input class="fi" id="rNote" placeholder="Доп. информация..."></div>
+        <button class="btn-add reys" onclick="addTrip()">+ Записать рейс</button>
+      </div>
+      <div id="formBenzin" style="display:none">
+        <div class="fg"><span class="flbl">СУММА (₽)</span><input class="fi" id="bAmt" type="text" placeholder="0" inputmode="decimal" oninput="fmtInput(this)"></div>
+        <div class="fg"><span class="flbl">ДАТА</span><input class="fi dp-input" id="bDate" readonly placeholder="дд.мм.гггг" onclick="openDP('bDate',this)"></div>
+        <div class="fg"><span class="flbl">ЗАМЕТКА (необяз.)</span><input class="fi" id="bNote" placeholder="АЗС..."></div>
+        <button class="btn-add benzin" onclick="addFuel()">+ Записать заправку</button>
+      </div>
+      <div id="formOther" style="display:none">
+        <div class="chips" id="expChips"></div>
+        <div class="fg"><span class="flbl">СУММА (₽)</span><input class="fi" id="oAmt" type="text" placeholder="0" inputmode="decimal" oninput="fmtInput(this)"></div>
+        <div class="fg"><span class="flbl">ДАТА</span><input class="fi dp-input" id="oDate" readonly placeholder="дд.мм.гггг" onclick="openDP('oDate',this)"></div>
+        <div class="fg"><span class="flbl">ОПИСАНИЕ</span><input class="fi" id="oDesc" placeholder="Что именно?"></div>
+        <button class="btn-add other" onclick="addExpense()">+ Записать расход</button>
+      </div>
+    </div>
+    <div class="elist" id="mainList"></div>
+  </div>
+
+  <div id="screenHistory" class="screen">
+    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="htab active" id="hf-all"     onclick="setHFilter('all')">Все</button>
+      <button class="htab"        id="hf-trip"    onclick="setHFilter('trip')">🚛 Рейсы</button>
+      <button class="htab"        id="hf-fuel"    onclick="setHFilter('fuel')">⛽ Бензин</button>
+      <button class="htab"        id="hf-expense" onclick="setHFilter('expense')">🔧 Расходы</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="htab-sort active" id="hs-new" onclick="setHSort('new')">Новые</button>
+      <button class="htab-sort"        id="hs-old" onclick="setHSort('old')">Старые</button>
+      <button class="htab-sort"        id="hs-big" onclick="setHSort('big')">По сумме ↓</button>
+    </div>
+    <div style="background:var(--surface);border:.5px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:12px;font-weight:700;color:var(--text2)">📅 Фильтр по дате</span>
+        <button onclick="clearDateFilter()" style="background:none;border:none;font-size:11px;color:var(--accent);cursor:pointer;font-family:var(--font);font-weight:600">Сбросить</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div class="flbl">ОТ</div><input class="fi dp-input" id="hDateFrom" readonly placeholder="дд.мм.гггг" onclick="openDP('hDateFrom',this)"></div>
+        <div><div class="flbl">ДО</div><input class="fi dp-input" id="hDateTo" readonly placeholder="дд.мм.гггг" onclick="openDP('hDateTo',this)"></div>
+      </div>
+      <div id="histSummary" style="display:none;margin-top:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Заработано</div><div id="hSumInc" style="font-size:13px;font-weight:700;font-family:var(--mono);color:var(--green)">0 ₽</div></div>
+          <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Расходы</div><div id="hSumExp" style="font-size:13px;font-weight:700;font-family:var(--mono);color:var(--red)">0 ₽</div></div>
+          <div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Прибыль</div><div id="hSumNet" style="font-size:13px;font-weight:700;font-family:var(--mono)">0 ₽</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="elist" id="histList"></div>
+  </div>
+
+  <div id="screenStats" class="screen">
+    <div class="sgrid" id="sgrid"></div>
+    <div class="bchart"><div class="slbl">Прибыль по месяцам (6 мес.)</div><div id="monthChart"></div></div>
+    <div class="bchart" id="expChart"></div>
+  </div>
+
+  <div id="screenSettings" class="screen">
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+      <div class="bchart"><div style="font-size:14px;font-weight:700;margin-bottom:6px">📤 Экспорт данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Сохранить все данные в JSON-файл</div><button class="btn-add reys" onclick="exportData()">Скачать резервную копию</button></div>
+      <div class="bchart"><div style="font-size:14px;font-weight:700;margin-bottom:6px">📥 Импорт данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Восстановить из резервной копии</div><input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importFromFile(event)"><button class="btn-add benzin" onclick="document.getElementById('importFileInput').click()">Загрузить резервную копию</button></div>
+      <div class="bchart" style="border-color:var(--red)"><div style="font-size:14px;font-weight:700;margin-bottom:6px;color:var(--red)">🗑 Сброс данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Удалить все рейсы и расходы навсегда</div><button class="btn-add other" onclick="showResetModal()">Сбросить все данные</button></div>
+      <div class="bchart"><div style="font-size:12px;color:var(--text3)">Мой Грузовик v1.0 — локальная версия</div></div>
+    </div>
+  </div>
+
+</div></div>
+
+<nav class="bnav">
+  <button class="nbtn active" id="navHome"     onclick="goScreen('Home')"    ><span class="nic">🏠</span><span>Главная</span></button>
+  <button class="nbtn"        id="navHistory"  onclick="goScreen('History')" ><span class="nic">📋</span><span>История</span></button>
+  <button class="nbtn"        id="navStats"    onclick="goScreen('Stats')"   ><span class="nic">📊</span><span>Статистика</span></button>
+  <button class="nbtn"        id="navSettings" onclick="goScreen('Settings')"><span class="nic">⚙️</span><span>Настройки</span></button>
+</nav>
+
+<div id="dpPopup" class="dp-popup" style="display:none">
+  <div class="dp-header"><div class="dp-month-label" id="dpMonthLabel"></div><div class="dp-nav"><button class="dp-nav-btn" onclick="dpMove(-1)">&#8249;</button><button class="dp-nav-btn" onclick="dpMove(1)">&#8250;</button></div></div>
+  <div class="dp-days-hdr"><div class="dp-day-hdr">Пн</div><div class="dp-day-hdr">Вт</div><div class="dp-day-hdr">Ср</div><div class="dp-day-hdr">Чт</div><div class="dp-day-hdr">Пт</div><div class="dp-day-hdr">Сб</div><div class="dp-day-hdr">Вс</div></div>
+  <div class="dp-days" id="dpDays"></div>
+  <div class="dp-footer"><button class="dp-footer-btn" onclick="closeDP()">Закрыть</button><button class="dp-footer-btn" onclick="dpToday()">Сегодня</button></div>
+</div>
+
+<div id="resetModal" class="modal-ov" style="display:none">
+  <div class="modal-box"><div class="modal-ic">🗑</div><div class="modal-title">Сбросить все данные?</div><div class="modal-text">Все рейсы, бензин и расходы будут удалены навсегда.</div><div class="modal-btns"><button class="modal-btn cancel" onclick="document.getElementById('resetModal').style.display='none'">Отмена</button><button class="modal-btn red" onclick="doReset()">Удалить всё</button></div></div>
+</div>
+
+<div id="importModal" class="modal-ov" style="display:none">
+  <div class="modal-box"><div class="modal-ic">📥</div><div class="modal-title">Загрузить данные?</div><div class="modal-text">Текущие данные будут заменены данными из файла.</div><div class="modal-btns"><button class="modal-btn cancel" onclick="document.getElementById('importModal').style.display='none'">Отмена</button><button class="modal-btn blue" onclick="doImport()">Загрузить</button></div></div>
+</div>
+
+<div id="updateModal" class="modal-ov" style="display:none">
+  <div class="modal-box">
+    <div class="modal-ic">🆕</div>
+    <div class="modal-title">Доступно обновление!</div>
+    <div class="modal-text" id="updateText">Выйдла новая версия приложения. Скачать сейчас?</div>
+    <div id="updateProgress" style="display:none;margin-bottom:16px">
+      <div style="background:var(--bg3);border-radius:10px;height:8px;overflow:hidden">
+        <div id="updateBar" style="height:100%;background:var(--accent);border-radius:10px;transition:width .3s;width:0%"></div>
+      </div>
+      <div id="updatePct" style="font-size:12px;color:var(--text2);text-align:center;margin-top:6px">0%</div>
+    </div>
+    <div class="modal-btns" id="updateBtns">
+      <button class="modal-btn cancel" onclick="document.getElementById('updateModal').style.display='none'">Позже</button>
+      <button class="modal-btn blue" onclick="doDownloadUpdate()">Скачать</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var MRU=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+var MSH=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+var MFL=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var EXP_CATS=['⚙️ СТО','🏢 ТК','🚿 Мойка','💳 Штраф'];
+
+var data={trips:[],expenses:[]};
+var viewDate=new Date(); viewDate.setDate(1);
+var curTab='reys', selCats=[], curScreen='Home', curListTab='trip';
+var hFilter='all', hSort='new';
+var expandedDates={}, histExpandedDates={};
+var curPeriod='month', periodOffset=0;
+var _importedData=null;
+
+function fmt(n){var a=Math.abs(Math.round(n));return (n<0?'-':'')+String(a).replace(/(\d)(?=(\d{3})+$)/g,'$1.')+' ₽';}
+function today(){return new Date().toISOString().slice(0,10);}
+function nowTime(){return new Date().toTimeString().slice(0,5);}
+function fmtDate(s){var d=new Date(s);return d.getDate()+' '+MSH[d.getMonth()]+' '+d.getFullYear();}
+function fmtDateFull(s){var d=new Date(s);return d.getDate()+' '+MFL[d.getMonth()]+' '+d.getFullYear();}
+function decl(n,a,b,c){var v=Math.abs(n)%100,v1=v%10;if(v>10&&v<20)return c;if(v1>1&&v1<5)return b;if(v1===1)return a;return c;}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+function fmtInput(el){var r=el.value.replace(/[^0-9]/g,'');if(!r){el.value='';return;}el.value=String(parseInt(r,10)).replace(/(\d)(?=(\d{3})+$)/g,'$1.');}
+function getRaw(id){return parseFloat(document.getElementById(id).value.replace(/\./g,''))||0;}
+function save(){window.api.save({data:data});}
+
+// Period
+function getPeriodDates(){
+  var now=new Date();
+  if(curPeriod==='day'){
+    var d=new Date();
+    d.setDate(d.getDate()+periodOffset);
+    var iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    return {from:iso,to:iso};
+  } else if(curPeriod==='week'){
+    var base=new Date(); base.setDate(base.getDate()+periodOffset*7);
+    var day=base.getDay(); var diff=day===0?-6:1-day;
+    var mon=new Date(base); mon.setDate(base.getDate()+diff);
+    var sun=new Date(mon); sun.setDate(mon.getDate()+6);
+    function toISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+    return {from:toISO(mon),to:toISO(sun)};
+  } else {
+    var y=viewDate.getFullYear(),m=viewDate.getMonth();
+    var from=y+'-'+String(m+1).padStart(2,'0')+'-01';
+    var lastDay=new Date(y,m+1,0).getDate();
+    var to=y+'-'+String(m+1).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+    return {from:from,to:to};
+  }
+}
+
+function setPeriod(p){
+  curPeriod=p; periodOffset=0;
+  document.getElementById('pDay').className='ptab'+(p==='day'?' active':'');
+  document.getElementById('pWeek').className='ptab'+(p==='week'?' active':'');
+  document.getElementById('pMonth').className='ptab'+(p==='month'?' active':'');
+  expandedDates={};
+  refresh();
+}
+
+function changePeriod(dir){
+  var now=new Date();
+  if(curPeriod==='day'){
+    var t=new Date(); t.setDate(t.getDate()+(periodOffset+dir));
+    if(t>now)return;
+    periodOffset+=dir;
+  } else if(curPeriod==='week'){
+    if(periodOffset+dir>0)return;
+    periodOffset+=dir;
+  } else {
+    var next=new Date(viewDate.getFullYear(),viewDate.getMonth()+dir,1);
+    var n=new Date(); n.setDate(1); n.setHours(0,0,0,0);
+    if(next>n)return;
+    viewDate=next;
+  }
+  expandedDates={};
+  refresh();
+}
+
+// Datepicker
+var dpTargetId=null,dpCurYear=0,dpCurMonth=0;
+function initDateField(id){var iso=today();var d=new Date(iso);var el=document.getElementById(id);if(!el)return;el.dataset.raw=iso;el.value=String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();}
+function dpGetRaw(id){var el=document.getElementById(id);return el?(el.dataset.raw||''):'';}
+function openDP(fid,el){dpTargetId=fid;var val=document.getElementById(fid).dataset.raw;var d=val?new Date(val):new Date();dpCurYear=d.getFullYear();dpCurMonth=d.getMonth();renderDP();var p=document.getElementById('dpPopup');p.style.display='block';var r=el.getBoundingClientRect(),top=r.bottom+4,left=r.left;if(left+264>window.innerWidth)left=window.innerWidth-268;if(top+320>window.innerHeight)top=r.top-320;p.style.top=top+'px';p.style.left=left+'px';}
+function closeDP(){document.getElementById('dpPopup').style.display='none';dpTargetId=null;}
+function dpMove(dir){dpCurMonth+=dir;if(dpCurMonth>11){dpCurMonth=0;dpCurYear++;}if(dpCurMonth<0){dpCurMonth=11;dpCurYear--;}renderDP();}
+function dpToday(){var d=new Date();dpCurYear=d.getFullYear();dpCurMonth=d.getMonth();dpPick(d.getFullYear(),d.getMonth(),d.getDate());}
+function dpPick(y,m,day){var iso=y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');var el=document.getElementById(dpTargetId);el.dataset.raw=iso;el.value=String(day).padStart(2,'0')+'.'+String(m+1).padStart(2,'0')+'.'+y;var wasHist=(dpTargetId==='hDateFrom'||dpTargetId==='hDateTo');closeDP();if(wasHist)renderHistory();}
+function renderDP(){document.getElementById('dpMonthLabel').textContent=MRU[dpCurMonth]+' '+dpCurYear;var ti=today(),si=dpTargetId?(document.getElementById(dpTargetId).dataset.raw||''):'';var fd=(new Date(dpCurYear,dpCurMonth,1).getDay()+6)%7,dim=new Date(dpCurYear,dpCurMonth+1,0).getDate(),dip=new Date(dpCurYear,dpCurMonth,0).getDate(),total=Math.ceil((fd+dim)/7)*7,html='';for(var i=0;i<total;i++){var day,mo,yr,cls='dp-day';if(i<fd){day=dip-fd+i+1;mo=dpCurMonth-1;yr=dpCurYear;if(mo<0){mo=11;yr--;}cls+=' other-month';}else if(i>=fd+dim){day=i-fd-dim+1;mo=dpCurMonth+1;yr=dpCurYear;if(mo>11){mo=0;yr++;}cls+=' other-month';}else{day=i-fd+1;mo=dpCurMonth;yr=dpCurYear;}var iso=yr+'-'+String(mo+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');if(iso===ti)cls+=' today';if(iso===si)cls+=' selected';html+='<button class="'+cls+'" onclick="dpPick('+yr+','+mo+','+day+')">'+day+'</button>';}document.getElementById('dpDays').innerHTML=html;}
+document.addEventListener('click',function(e){var p=document.getElementById('dpPopup');if(p&&p.style.display!=='none'&&!p.contains(e.target)&&!e.target.classList.contains('dp-input'))closeDP();});
+
+// Tabs
+function setTab(t){curTab=t;selCats=[];document.getElementById('formReys').style.display=t==='reys'?'block':'none';document.getElementById('formBenzin').style.display=t==='benzin'?'block':'none';document.getElementById('formOther').style.display=t==='other'?'block':'none';document.getElementById('ftReys').className='ftab'+(t==='reys'?' act-reys':'');document.getElementById('ftBenzin').className='ftab'+(t==='benzin'?' act-benzin':'');document.getElementById('ftOther').className='ftab'+(t==='other'?' act-other':'');if(t==='other')renderChips();['rDate','bDate','oDate'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.dataset.raw)initDateField(id);});curListTab=t==='reys'?'trip':t==='benzin'?'fuel':'expense';renderMainList();}
+function renderChips(){document.getElementById('expChips').innerHTML=EXP_CATS.map(function(c){return '<span class="chip'+(selCats.indexOf(c)!==-1?' sel':'')+'" onclick="pickChip(\''+c+'\')">'+c+'</span>';}).join('');}
+function pickChip(c){var i=selCats.indexOf(c);if(i===-1)selCats.push(c);else selCats.splice(i,1);document.getElementById('oDesc').value=selCats.map(function(x){return x.split(' ').slice(1).join(' ');}).join(', ');renderChips();}
+
+// Add entries
+function addTrip(){var pay=getRaw('rPay'),date=dpGetRaw('rDate')||today(),time=nowTime(),note=document.getElementById('rNote').value.trim();if(!pay||pay<=0){toast('Введи сумму заказа');return;}data.trips.push({id:Date.now(),type:'trip',date:date,time:time,pay:pay,note:note});data.trips.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('rPay').value='';document.getElementById('rNote').value='';initDateField('rDate');refresh();toast('🚛 Рейс записан!');}
+function addFuel(){var amt=getRaw('bAmt'),date=dpGetRaw('bDate')||today(),time=nowTime(),note=document.getElementById('bNote').value.trim()||'Заправка';if(!amt||amt<=0){toast('Введи сумму');return;}data.expenses.push({id:Date.now(),type:'fuel',date:date,time:time,amount:amt,note:note,desc:note});data.expenses.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('bAmt').value='';document.getElementById('bNote').value='';initDateField('bDate');refresh();toast('⛽ Заправка записана!');}
+function addExpense(){var amt=getRaw('oAmt'),date=dpGetRaw('oDate')||today(),time=nowTime(),cat=selCats.length?selCats.join(', '):'',desc=document.getElementById('oDesc').value.trim()||cat;if(!amt||amt<=0){toast('Введи сумму');return;}if(!desc){toast('Выбери категорию или введи описание');return;}data.expenses.push({id:Date.now(),type:'expense',date:date,time:time,amount:amt,desc:desc,cat:cat});data.expenses.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('oAmt').value='';document.getElementById('oDesc').value='';initDateField('oDate');selCats=[];renderChips();refresh();toast('🔧 Расход записан!');}
+function delEntry(id,kind){if(kind==='trip')data.trips=data.trips.filter(function(e){return e.id!==id;});else data.expenses=data.expenses.filter(function(e){return e.id!==id;});save();refresh();toast('Удалено');}
+
+// HTML builders
+function tripHtml(e){return '<div class="entry"><div class="eic trip">🚛</div><div class="einfo"><div class="edesc">Заказ'+(e.note?' · '+e.note:'')+'</div><div class="edate">'+fmtDate(e.date)+(e.time?' · '+e.time:'')+'</div></div><div class="eamt green">+'+fmt(e.pay)+'</div><button class="delbtn" onclick="delEntry('+e.id+',\'trip\')">×</button></div>';}
+function expHtml(e){var isFuel=e.type==='fuel',ic=isFuel?'⛽':'🔧',cls=isFuel?'fuel':'exp',clr=isFuel?'yellow':'red',lbl=isFuel?(e.note||'Заправка'):(e.desc||e.cat||'Расход');return '<div class="entry"><div class="eic '+cls+'">'+ic+'</div><div class="einfo"><div class="edesc">'+lbl+'</div><div class="edate">'+fmtDate(e.date)+(e.time?' · '+e.time:'')+'</div></div><div class="eamt '+clr+'">-'+fmt(e.amount)+'</div><button class="delbtn" onclick="delEntry('+e.id+',\'exp\')">×</button></div>';}
+
+// Grouped renderer with day stats
+function renderGrouped(all,container,expandMap,toggleFn){
+  if(!all.length){container.innerHTML='<div class="empty"><div class="empty-ic">📭</div>Нет записей</div>';return;}
+  var groups={},order=[];
+  all.forEach(function(e){if(!groups[e.date]){groups[e.date]=[];order.push(e.date);}groups[e.date].push(e);});
+  var LIMIT=3,html='';
+  order.forEach(function(date){
+    var items=groups[date],expanded=expandMap[date],show=expanded?items:items.slice(0,LIMIT),hidden=items.length-LIMIT;
+    var tc=items.filter(function(e){return e._k==='trip';}).length;
+    var ti=items.filter(function(e){return e._k==='trip';}).reduce(function(a,e){return a+(e.pay||0);},0);
+    var ds=tc>0?' &nbsp;·&nbsp; <span style="color:var(--text2)">'+tc+' '+decl(tc,'заказ','заказа','заказов')+'</span> &nbsp;·&nbsp; <span style="color:var(--green)">+'+fmt(ti)+'</span>':'';
+    if(expanded&&items.length>LIMIT){
+      html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 2px 5px">'+
+        '<div style="display:flex;align-items:baseline;gap:4px;flex-wrap:wrap"><span class="date-hdr" style="padding:0">'+fmtDateFull(date)+'</span><span style="font-size:11px">'+ds+'</span></div>'+
+        '<button class="more-btn" onclick="'+toggleFn+'(\''+date+'\')" style="width:auto;padding:4px 12px;font-size:11px;color:var(--text3);flex-shrink:0">↑ Свернуть</button>'+
+      '</div>';
+    } else {
+      html+='<div style="display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;padding:8px 2px 5px"><span class="date-hdr" style="padding:0">'+fmtDateFull(date)+'</span><span style="font-size:11px">'+ds+'</span></div>';
+    }
+    html+='<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">';
+    show.forEach(function(e){html+=e._k==='trip'?tripHtml(e):expHtml(e);});
+    if(!expanded&&hidden>0)html+='<button class="more-btn" onclick="'+toggleFn+'(\''+date+'\')">··· ещё '+hidden+' '+decl(hidden,'запись','записи','записей')+'</button>';
+    html+='</div>';
+  });
+  container.innerHTML=html;
+}
+
+function renderMainList(){
+  var pd=getPeriodDates(),fromDate=pd.from,toDate=pd.to;
+  var trips=data.trips.filter(function(e){return e.date>=fromDate&&e.date<=toDate;});
+  var exps=data.expenses.filter(function(e){return e.date>=fromDate&&e.date<=toDate;});
+  var all=[];
+  if(curListTab==='trip')all=trips.map(function(e){return Object.assign({},e,{_k:'trip'});});
+  else if(curListTab==='fuel')all=exps.filter(function(e){return e.type==='fuel';}).map(function(e){return Object.assign({},e,{_k:'exp'});});
+  else if(curListTab==='expense')all=exps.filter(function(e){return e.type==='expense';}).map(function(e){return Object.assign({},e,{_k:'exp'});});
+  else all=trips.map(function(e){return Object.assign({},e,{_k:'trip'});}).concat(exps.map(function(e){return Object.assign({},e,{_k:'exp'});}));
+  all.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});
+  renderGrouped(all,document.getElementById('mainList'),expandedDates,'toggleDate');
+}
+function toggleDate(date){expandedDates[date]=!expandedDates[date];renderMainList();}
+
+function refresh(){
+  var now=new Date();
+  var pd=getPeriodDates(),fromDate=pd.from,toDate=pd.to;
+  var lbl='',periodLblText='';
+  if(curPeriod==='day'){
+    var d=new Date(fromDate+'T12:00:00');
+    lbl=d.getDate()+' '+MFL[d.getMonth()]+' '+d.getFullYear();
+    periodLblText='Чистая прибыль за день';
+  } else if(curPeriod==='week'){
+    var df=new Date(fromDate+'T12:00:00'),dt=new Date(toDate+'T12:00:00');
+    lbl=df.getDate()+' '+MSH[df.getMonth()]+' — '+dt.getDate()+' '+MSH[dt.getMonth()]+' '+dt.getFullYear();
+    periodLblText='Чистая прибыль за неделю';
+  } else {
+    lbl=MRU[viewDate.getMonth()]+' '+viewDate.getFullYear();
+    periodLblText='Чистая прибыль за месяц';
+  }
+  document.getElementById('monthLabel').textContent=lbl;
+  document.getElementById('periodLabel').textContent=periodLblText;
+  var atEnd=false;
+  if(curPeriod==='day')atEnd=periodOffset>=0;
+  else if(curPeriod==='week')atEnd=periodOffset>=0;
+  else{var y=viewDate.getFullYear(),m=viewDate.getMonth();atEnd=(y===now.getFullYear()&&m===now.getMonth());}
+  document.getElementById('btnNext').style.opacity=atEnd?'0.3':'1';
+
+  var trips=data.trips.filter(function(e){return e.date>=fromDate&&e.date<=toDate;});
+  var exps=data.expenses.filter(function(e){return e.date>=fromDate&&e.date<=toDate;});
+  var ts=trips.reduce(function(a,e){return a+e.pay;},0),es=exps.reduce(function(a,e){return a+e.amount;},0),net=ts-es;
+  var np=document.getElementById('netProfit');np.textContent=(net>=0?'+':'')+fmt(net);np.className='tc-val lg '+(net>=0?'green':'red');
+  document.getElementById('totalTrips').textContent=fmt(ts);
+  document.getElementById('tripsCount').textContent=trips.length+' рейс'+decl(trips.length,'','а','ов');
+  document.getElementById('totalExpAll').textContent=fmt(es);
+  renderMainList();
+  if(curScreen==='History')renderHistory();
+  if(curScreen==='Stats')renderStats();
+}
+
+// History
+function setHFilter(f){hFilter=f;histExpandedDates={};['all','trip','fuel','expense'].forEach(function(v){var el=document.getElementById('hf-'+v);if(el)el.className='htab'+(v===f?' active':'');});renderHistory();}
+function setHSort(s){if(s==='big'){hSort=hSort==='big'?'bigasc':'big';}else hSort=s;var el=document.getElementById('hs-big');if(el)el.textContent=hSort==='bigasc'?'По сумме ↑':'По сумме ↓';['new','old','big'].forEach(function(v){var el2=document.getElementById('hs-'+v);if(el2)el2.className='htab-sort'+((hSort===v||(v==='big'&&hSort==='bigasc'))?' active':'');});renderHistory();}
+function clearDateFilter(){['hDateFrom','hDateTo'].forEach(function(id){var el=document.getElementById(id);if(el){el.value='';el.dataset.raw='';}});renderHistory();}
+function renderHistory(){
+  var trips=data.trips.map(function(e){return Object.assign({},e,{_k:'trip',_amt:Number(e.pay)||0});});
+  var exps=data.expenses.map(function(e){return Object.assign({},e,{_k:'exp',_amt:Number(e.amount)||0});});
+  var all=[];
+  if(hFilter==='all')all=trips.concat(exps);
+  else if(hFilter==='trip')all=trips;
+  else if(hFilter==='fuel')all=exps.filter(function(e){return e.type==='fuel';});
+  else if(hFilter==='expense')all=exps.filter(function(e){return e.type==='expense';});
+  var frv=document.getElementById('hDateFrom')?document.getElementById('hDateFrom').dataset.raw||'':'';
+  var tov=document.getElementById('hDateTo')?document.getElementById('hDateTo').dataset.raw||'':'';
+  if(frv)all=all.filter(function(e){return e.date>=frv;});
+  if(tov)all=all.filter(function(e){return e.date<=tov;});
+  var su=document.getElementById('histSummary');
+  if(su){if(frv||tov){su.style.display='block';var inc=all.filter(function(e){return e._k==='trip';}).reduce(function(a,e){return a+e._amt;},0),exp=all.filter(function(e){return e._k==='exp';}).reduce(function(a,e){return a+e._amt;},0),net=inc-exp;document.getElementById('hSumInc').textContent=fmt(inc);document.getElementById('hSumExp').textContent=fmt(exp);var ne=document.getElementById('hSumNet');ne.textContent=(net>=0?'+':'')+fmt(net);ne.style.color=net>=0?'var(--green)':'var(--red)';}else{su.style.display='none';}}
+  function dk(e){return e.date+(e.time?'T'+e.time:'T00:00');}
+  if(hSort==='old')all.sort(function(a,b){return dk(a).localeCompare(dk(b));});
+  else if(hSort==='big')all.sort(function(a,b){return b._amt-a._amt;});
+  else if(hSort==='bigasc')all.sort(function(a,b){return a._amt-b._amt;});
+  else all.sort(function(a,b){return dk(b).localeCompare(dk(a));});
+  var el=document.getElementById('histList');if(!el)return;
+  renderGrouped(all,el,histExpandedDates,'toggleHistDate');
+}
+function toggleHistDate(date){histExpandedDates[date]=!histExpandedDates[date];renderHistory();}
+
+// Stats
+function renderStats(){
+  var at=data.trips.reduce(function(a,e){return a+e.pay;},0),ae=data.expenses.reduce(function(a,e){return a+e.amount;},0),af=data.expenses.filter(function(e){return e.type==='fuel';}).reduce(function(a,e){return a+e.amount;},0),ar=data.expenses.filter(function(e){return e.type==='expense';}).reduce(function(a,e){return a+e.amount;},0),avg=data.trips.length?at/data.trips.length:0;
+  document.getElementById('sgrid').innerHTML='<div class="sbox"><div class="sbox-lbl">Всего заработано</div><div class="sbox-val" style="color:var(--green)">'+fmt(at)+'</div></div><div class="sbox"><div class="sbox-lbl">Чистая прибыль</div><div class="sbox-val" style="color:'+(at-ae>=0?'var(--green)':'var(--red)')+'">'+fmt(at-ae)+'</div></div><div class="sbox"><div class="sbox-lbl">Бензин всего</div><div class="sbox-val" style="color:var(--yellow)">'+fmt(af)+'</div></div><div class="sbox"><div class="sbox-lbl">Ремонт / СТО / ТК</div><div class="sbox-val" style="color:var(--red)">'+fmt(ar)+'</div></div><div class="sbox"><div class="sbox-lbl">Всего рейсов</div><div class="sbox-val" style="color:var(--blue)">'+data.trips.length+'</div></div><div class="sbox"><div class="sbox-lbl">Средний рейс</div><div class="sbox-val" style="color:var(--blue)">'+fmt(avg)+'</div></div>';
+  var now=new Date(),maxV=0,mos=[];
+  for(var i=5;i>=0;i--){var d=new Date(now.getFullYear(),now.getMonth()-i,1),yy=d.getFullYear(),mm=d.getMonth();var from=yy+'-'+String(mm+1).padStart(2,'0')+'-01',to=yy+'-'+String(mm+1).padStart(2,'0')+'-'+String(new Date(yy,mm+1,0).getDate()).padStart(2,'0');var ts=data.trips.filter(function(e){return e.date>=from&&e.date<=to;}).reduce(function(a,e){return a+e.pay;},0),es=data.expenses.filter(function(e){return e.date>=from&&e.date<=to;}).reduce(function(a,e){return a+e.amount;},0);if(ts>maxV)maxV=ts;if(es>maxV)maxV=es;mos.push({lbl:MSH[mm],ts:ts,es:es});}
+  if(!maxV)maxV=1;
+  var rows='<div style="display:flex;flex-direction:column;gap:8px">';
+  mos.forEach(function(mo){var net=mo.ts-mo.es,nc=net>=0?'var(--green)':'var(--red)',nb=net>=0?'var(--gdim)':'var(--rdim)';rows+='<div style="background:var(--bg3);border-radius:12px;padding:12px 14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:800;color:var(--text)">'+mo.lbl+'</span><span style="font-size:13px;font-family:var(--mono);font-weight:700;color:'+nc+';background:'+nb+';padding:3px 10px;border-radius:20px">'+(net>=0?'+':'')+fmt(net)+'</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="background:var(--bg2);border-radius:8px;padding:8px 10px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">💰 Заработано</div><div style="font-size:14px;font-family:var(--mono);font-weight:700;color:var(--green)">'+fmt(mo.ts)+'</div></div><div style="background:var(--bg2);border-radius:8px;padding:8px 10px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">📉 Расходы</div><div style="font-size:14px;font-family:var(--mono);font-weight:700;color:var(--red)">'+fmt(mo.es)+'</div></div></div></div>';});
+  rows+='</div>';
+  document.getElementById('monthChart').innerHTML=rows;
+  var catMap={};data.expenses.forEach(function(e){if(e.type==='fuel'){catMap['⛽ Бензин']=(catMap['⛽ Бензин']||0)+e.amount;}else if(e.cat){var cats=e.cat.split(', '),pc=e.amount/cats.length;cats.forEach(function(c){var k=c.trim();if(k)catMap[k]=(catMap[k]||0)+pc;});}});
+  var sorted=Object.entries(catMap).sort(function(a,b){return b[1]-a[1];}).slice(0,8),ctotal=sorted.reduce(function(a,c){return a+c[1];},0)||1;
+  var ch='<div class="slbl">Расходы по категориям</div>';
+  if(!sorted.length)ch+='<div class="empty">Нет расходов</div>';
+  else sorted.forEach(function(item){var pct=Math.round(item[1]/ctotal*100);ch+='<div style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px"><span style="font-size:14px;font-weight:700;color:var(--text)">'+item[0]+'</span><span style="font-size:15px;font-family:var(--mono);font-weight:700;color:var(--red)">'+fmt(item[1])+'</span></div><div class="btrack" style="height:10px"><div class="bfill r" style="width:'+pct+'%"></div></div><div style="font-size:12px;color:var(--text2);margin-top:5px;font-weight:500">'+pct+'% от всех расходов</div></div>';});
+  document.getElementById('expChart').innerHTML=ch;
+}
+
+function goScreen(name){curScreen=name;['Home','History','Stats','Settings'].forEach(function(s){document.getElementById('screen'+s).className='screen'+(s===name?' active':'');document.getElementById('nav'+s).className='nbtn'+(s===name?' active':'');});if(name==='Stats')renderStats();if(name==='History')renderHistory();}
+
+function showResetModal(){document.getElementById('resetModal').style.display='flex';}
+function doReset(){document.getElementById('resetModal').style.display='none';data={trips:[],expenses:[]};window.api.reset();expandedDates={};histExpandedDates={};curListTab='trip';refresh();toast('✅ Все данные удалены');goScreen('Home');}
+function exportData(){var json=JSON.stringify(data,null,2),blob=new Blob([json],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a'),d=new Date();a.href=url;a.download='грузовик_'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);toast('✅ Резервная копия сохранена');}
+function importFromFile(event){var file=event.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){try{var imp=JSON.parse(e.target.result);if(!imp.trips||!imp.expenses){toast('❌ Неверный формат');return;}_importedData=imp;document.getElementById('importModal').style.display='flex';}catch(err){toast('❌ Ошибка чтения файла');}event.target.value='';};reader.readAsText(file);}
+function doImport(){document.getElementById('importModal').style.display='none';if(!_importedData)return;data=_importedData;_importedData=null;window.api.save({data:data});expandedDates={};histExpandedDates={};refresh();toast('✅ Данные загружены');goScreen('Home');}
+
+// Auto-update handlers
+function doDownloadUpdate() {
+  document.getElementById('updateBtns').style.display='none';
+  document.getElementById('updateProgress').style.display='block';
+  window.api.startDownload();
+}
+
+if(window.api && window.api.onUpdateAvailable) {
+  window.api.onUpdateAvailable(function(info) {
+    document.getElementById('updateText').textContent = 'Доступна версия ' + info.version + '. Скачать сейчас? (~2 минуты)';
+    document.getElementById('updateModal').style.display='flex';
+  });
+  window.api.onDownloadProgress(function(pct) {
+    document.getElementById('updateBar').style.width = pct+'%';
+    document.getElementById('updatePct').textContent = pct+'%';
+  });
+  window.api.onUpdateDownloaded(function() {
+    document.getElementById('updateProgress').style.display='none';
+    document.getElementById('updateText').textContent = 'Обновление загружено! Перезапустить приложение?';
+    document.getElementById('updateBtns').style.display='grid';
+    document.getElementById('updateBtns').innerHTML = '<button class="modal-btn cancel" onclick="document.getElementById(\'updateModal\').style.display=\'none\'">Позже</button><button class="modal-btn blue" onclick="window.api.installUpdate()">Перезапустить</button>';
+    document.getElementById('updateModal').style.display='flex';
+  });
+}
+
+window.addEventListener('DOMContentLoaded',function(){
+  initDateField('rDate');initDateField('bDate');initDateField('oDate');
+  setTab('reys');
+  function onEnter(ids,fn){ids.forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter')fn();});});}
+  onEnter(['rPay','rNote'],addTrip);
+  onEnter(['bAmt','bNote'],addFuel);
+  onEnter(['oAmt','oDesc'],addExpense);
+  window.api.load().then(function(res){if(res.ok)data=res.data;refresh();});
+});
+</script>
+</body>
+</html>
