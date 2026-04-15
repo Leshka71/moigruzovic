@@ -18,4 +18,5 @@
 - 500 МБ свободного места
 
 ## 📸 Скриншоты
-*Скоро будут добавлены*
+<img width="537" height="855" alt="image" src="https://github.com/user-attachments/assets/d8b91de5-fd47-4eac-a9f3-bde4d58f4647" />
+
