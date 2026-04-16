@@ -259,7 +259,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);user-select:
       <div class="bchart"><div style="font-size:14px;font-weight:700;margin-bottom:6px">📤 Экспорт данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Сохранить все данные в JSON-файл</div><button class="btn-add reys" onclick="exportData()">Скачать резервную копию</button></div>
       <div class="bchart"><div style="font-size:14px;font-weight:700;margin-bottom:6px">📥 Импорт данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Восстановить из резервной копии</div><input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importFromFile(event)"><button class="btn-add benzin" onclick="document.getElementById('importFileInput').click()">Загрузить резервную копию</button></div>
       <div class="bchart" style="border-color:var(--red)"><div style="font-size:14px;font-weight:700;margin-bottom:6px;color:var(--red)">🗑 Сброс данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Удалить все рейсы и расходы навсегда</div><button class="btn-add other" onclick="showResetModal()">Сбросить все данные</button></div>
-      <div class="bchart"><div style="font-size:12px;color:var(--text3)">Мой Грузовик v1.0.1 — локальная версия</div></div>
+      <div class="bchart"><div style="font-size:12px;color:var(--text3)">Мой Грузовик v1.0.2</div></div>
     </div>
   </div>
 
@@ -322,8 +322,29 @@ var curPeriod='month', periodOffset=0;
 var _importedData=null;
 
 function fmt(n){var a=Math.abs(Math.round(n));return (n<0?'-':'')+String(a).replace(/(\d)(?=(\d{3})+$)/g,'$1.')+' ₽';}
-function today(){return new Date().toISOString().slice(0,10);}
-function nowTime(){return new Date().toTimeString().slice(0,5);}
+var _realDate = null; // date from internet
+
+async function syncInternetTime(){
+  try {
+    var res = await fetch('https://worldtimeapi.org/api/timezone/Europe/Moscow');
+    var json = await res.json();
+    var d = new Date(json.datetime);
+    _realDate = d;
+  } catch(e) { _realDate = null; }
+}
+
+function getRealDate(){
+  return _realDate ? new Date(_realDate.getTime() + (Date.now() - (_realDate._fetched||Date.now()))) : new Date();
+}
+
+function today(){
+  var d = _realDate || new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function nowTime(){
+  var d = _realDate || new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
 function fmtDate(s){var d=new Date(s);return d.getDate()+' '+MSH[d.getMonth()]+' '+d.getFullYear();}
 function fmtDateFull(s){var d=new Date(s);return d.getDate()+' '+MFL[d.getMonth()]+' '+d.getFullYear();}
 function decl(n,a,b,c){var v=Math.abs(n)%100,v1=v%10;if(v>10&&v<20)return c;if(v1>1&&v1<5)return b;if(v1===1)return a;return c;}
@@ -402,9 +423,9 @@ function renderChips(){document.getElementById('expChips').innerHTML=EXP_CATS.ma
 function pickChip(c){var i=selCats.indexOf(c);if(i===-1)selCats.push(c);else selCats.splice(i,1);document.getElementById('oDesc').value=selCats.map(function(x){return x.split(' ').slice(1).join(' ');}).join(', ');renderChips();}
 
 // Add entries
-function addTrip(){var pay=getRaw('rPay'),date=dpGetRaw('rDate')||today(),time=nowTime(),note=document.getElementById('rNote').value.trim();if(!pay||pay<=0){toast('Введи сумму заказа');return;}data.trips.push({id:Date.now(),type:'trip',date:date,time:time,pay:pay,note:note});data.trips.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('rPay').value='';document.getElementById('rNote').value='';initDateField('rDate');refresh();toast('🚛 Рейс записан!');}
-function addFuel(){var amt=getRaw('bAmt'),date=dpGetRaw('bDate')||today(),time=nowTime(),note=document.getElementById('bNote').value.trim()||'Заправка';if(!amt||amt<=0){toast('Введи сумму');return;}data.expenses.push({id:Date.now(),type:'fuel',date:date,time:time,amount:amt,note:note,desc:note});data.expenses.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('bAmt').value='';document.getElementById('bNote').value='';initDateField('bDate');refresh();toast('⛽ Заправка записана!');}
-function addExpense(){var amt=getRaw('oAmt'),date=dpGetRaw('oDate')||today(),time=nowTime(),cat=selCats.length?selCats.join(', '):'',desc=document.getElementById('oDesc').value.trim()||cat;if(!amt||amt<=0){toast('Введи сумму');return;}if(!desc){toast('Выбери категорию или введи описание');return;}data.expenses.push({id:Date.now(),type:'expense',date:date,time:time,amount:amt,desc:desc,cat:cat});data.expenses.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('oAmt').value='';document.getElementById('oDesc').value='';initDateField('oDate');selCats=[];renderChips();refresh();toast('🔧 Расход записан!');}
+function addTrip(){initDateField('rDate');var pay=getRaw('rPay'),date=dpGetRaw('rDate')||today(),time=nowTime(),note=document.getElementById('rNote').value.trim();if(!pay||pay<=0){toast('Введи сумму заказа');return;}data.trips.push({id:Date.now(),type:'trip',date:date,time:time,pay:pay,note:note});data.trips.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('rPay').value='';document.getElementById('rNote').value='';initDateField('rDate');refresh();toast('🚛 Рейс записан!');}
+function addFuel(){initDateField('bDate');var amt=getRaw('bAmt'),date=dpGetRaw('bDate')||today(),time=nowTime(),note=document.getElementById('bNote').value.trim()||'Заправка';if(!amt||amt<=0){toast('Введи сумму');return;}data.expenses.push({id:Date.now(),type:'fuel',date:date,time:time,amount:amt,note:note,desc:note});data.expenses.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('bAmt').value='';document.getElementById('bNote').value='';initDateField('bDate');refresh();toast('⛽ Заправка записана!');}
+function addExpense(){initDateField('oDate');var amt=getRaw('oAmt'),date=dpGetRaw('oDate')||today(),time=nowTime(),cat=selCats.length?selCats.join(', '):'',desc=document.getElementById('oDesc').value.trim()||cat;if(!amt||amt<=0){toast('Введи сумму');return;}if(!desc){toast('Выбери категорию или введи описание');return;}data.expenses.push({id:Date.now(),type:'expense',date:date,time:time,amount:amt,desc:desc,cat:cat});data.expenses.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});save();document.getElementById('oAmt').value='';document.getElementById('oDesc').value='';initDateField('oDate');selCats=[];renderChips();refresh();toast('🔧 Расход записан!');}
 function delEntry(id,kind){if(kind==='trip')data.trips=data.trips.filter(function(e){return e.id!==id;});else data.expenses=data.expenses.filter(function(e){return e.id!==id;});save();refresh();toast('Удалено');}
 
 // HTML builders
@@ -575,7 +596,28 @@ window.addEventListener('DOMContentLoaded',function(){
   onEnter(['rPay','rNote'],addTrip);
   onEnter(['bAmt','bNote'],addFuel);
   onEnter(['oAmt','oDesc'],addExpense);
+  syncInternetTime().then(function(){ refreshDates(); });
   window.api.load().then(function(res){if(res.ok)data=res.data;refresh();});
+  // Re-sync every hour
+  setInterval(function(){ syncInternetTime().then(function(){ refreshDates(); }); }, 3600000);
+
+  // Schedule exact midnight refresh
+  function scheduleMidnight(){
+    syncInternetTime().then(function(){
+      var now = _realDate || new Date();
+      var midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0, 0, 5);
+      var msLeft = midnight - now;
+      setTimeout(function(){
+        syncInternetTime().then(function(){
+          refreshDates();
+          refresh();
+
+          scheduleMidnight(); // schedule next midnight
+        });
+      }, msLeft);
+    });
+  }
+  scheduleMidnight();
 
   // Auto-update date fields every minute and on window focus
   function refreshDates(){
@@ -590,7 +632,6 @@ window.addEventListener('DOMContentLoaded',function(){
     });
   }
   window.addEventListener('focus', refreshDates);
-  setInterval(refreshDates, 60000);
 });
 </script>
 </body>

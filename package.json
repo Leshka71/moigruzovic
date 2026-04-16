@@ -1,6 +1,6 @@
 {
   "name": "truck-finance",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Учёт доходов и расходов грузоперевозчика в Radmir",
   "main": "main.js",
   "scripts": {
