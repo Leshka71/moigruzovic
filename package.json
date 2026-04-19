@@ -1,6 +1,6 @@
 {
   "name": "truck-finance",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Учёт доходов и расходов грузоперевозчика в Radmir",
   "main": "main.js",
   "scripts": {
@@ -38,7 +38,8 @@
     }
   },
   "dependencies": {
-    "electron-updater": "^6.1.7"
+    "electron-updater": "^6.1.7",
+    "iconv-lite": "^0.6.3"
   },
   "devDependencies": {
     "electron": "^28.0.0",

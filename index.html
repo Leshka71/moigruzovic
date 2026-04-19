@@ -256,10 +256,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);user-select:
 
   <div id="screenSettings" class="screen">
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+      <div class="bchart" style="border-color:var(--accent)">
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px">🤖 Авто-запись рейсов</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Приложение читает chatlog.txt и автоматически записывает рейсы из игры</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:600">Включить авто-запись</span>
+          <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
+            <input type="checkbox" id="autoTripToggle" style="opacity:0;width:0;height:0" onchange="toggleAutoTrip()">
+            <span id="autoTripSlider" style="position:absolute;inset:0;background:var(--bg3);border-radius:12px;transition:.3s;border:.5px solid var(--border2)"></span>
+            <span id="autoTripThumb" style="position:absolute;left:3px;top:3px;width:18px;height:18px;background:var(--text3);border-radius:50%;transition:.3s"></span>
+          </label>
+        </div>
+
+        <div id="autoTripStatus" style="font-size:11px;color:var(--text3)">Выключено</div>
+      </div>
       <div class="bchart"><div style="font-size:14px;font-weight:700;margin-bottom:6px">📤 Экспорт данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Сохранить все данные в JSON-файл</div><button class="btn-add reys" onclick="exportData()">Скачать резервную копию</button></div>
       <div class="bchart"><div style="font-size:14px;font-weight:700;margin-bottom:6px">📥 Импорт данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Восстановить из резервной копии</div><input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importFromFile(event)"><button class="btn-add benzin" onclick="document.getElementById('importFileInput').click()">Загрузить резервную копию</button></div>
       <div class="bchart" style="border-color:var(--red)"><div style="font-size:14px;font-weight:700;margin-bottom:6px;color:var(--red)">🗑 Сброс данных</div><div style="font-size:12px;color:var(--text2);margin-bottom:12px">Удалить все рейсы и расходы навсегда</div><button class="btn-add other" onclick="showResetModal()">Сбросить все данные</button></div>
-      <div class="bchart"><div style="font-size:12px;color:var(--text3)">Мой Грузовик v1.0.2</div></div>
+      <div class="bchart"><div style="font-size:12px;color:var(--text3)">Мой Грузовик v1.0.1 — локальная версия</div></div>
     </div>
   </div>
 
@@ -589,6 +603,73 @@ if(window.api && window.api.onUpdateAvailable) {
   });
 }
 
+// ── Auto-trip ──────────────────────────────────────────────────────────────
+var _autoTripPath = '';
+var _autoTripEnabled = false;
+
+function updateAutoTripUI(){
+  var toggle = document.getElementById('autoTripToggle');
+  var slider = document.getElementById('autoTripSlider');
+  var thumb  = document.getElementById('autoTripThumb');
+  var status = document.getElementById('autoTripStatus');
+  var lbl    = document.getElementById('chatlogPathLabel');
+  if(!toggle) return;
+  toggle.checked = _autoTripEnabled;
+  if(_autoTripEnabled){
+    slider.style.background = 'var(--gdim)';
+    slider.style.borderColor = 'var(--green)';
+    thumb.style.background  = 'var(--green)';
+    thumb.style.left = '23px';
+    status.textContent = '✅ Активно — рейсы записываются автоматически';
+    status.style.color = 'var(--green)';
+  } else {
+    slider.style.background = 'var(--bg3)';
+    slider.style.borderColor = 'var(--border2)';
+    thumb.style.background  = 'var(--text3)';
+    thumb.style.left = '3px';
+    status.textContent = 'Выключено';
+    status.style.color = 'var(--text3)';
+  }
+  if(_autoTripPath) lbl.textContent = _autoTripPath.split('\\').pop() || _autoTripPath.split('/').pop();
+}
+
+async function pickChatlog(){
+  var res = await window.api.pickChatlog();
+  if(!res.ok) return;
+  _autoTripPath = res.path;
+  await window.api.setAutotrip({enabled: _autoTripEnabled, filePath: _autoTripPath});
+  updateAutoTripUI();
+  toast('📂 Файл выбран!');
+}
+
+async function toggleAutoTrip(){
+  _autoTripEnabled = document.getElementById('autoTripToggle').checked;
+  await window.api.setAutotrip({enabled: _autoTripEnabled, filePath: ''});
+  updateAutoTripUI();
+  toast(_autoTripEnabled ? '✅ Авто-запись включена!' : '⛔ Авто-запись выключена');
+}
+
+// Handle auto-trip from main process
+if(window.api && window.api.onAutoTrip){
+  window.api.onAutoTrip(function(d){
+    // d = { pay, time, date, note, commission }
+    var entry = {id:Date.now(), type:'trip', date:d.date, time:d.time, pay:d.pay, note:d.note||''};
+    data.trips.push(entry);
+    data.trips.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});
+    window.api.save({data:data});
+    refresh();
+    toast('🚛 Авто-рейс: +' + fmt(d.pay) + (d.note?' ('+d.note+')':''));
+  });
+}
+
+if(window.api && window.api.onConfigLoaded){
+  window.api.onConfigLoaded(function(cfg){
+    _autoTripEnabled = cfg.autoTripEnabled||false;
+    _autoTripPath    = cfg.chatlogPath||'';
+    updateAutoTripUI();
+  });
+}
+
 window.addEventListener('DOMContentLoaded',function(){
   initDateField('rDate');initDateField('bDate');initDateField('oDate');
   setTab('reys');
@@ -598,6 +679,11 @@ window.addEventListener('DOMContentLoaded',function(){
   onEnter(['oAmt','oDesc'],addExpense);
   syncInternetTime().then(function(){ refreshDates(); });
   window.api.load().then(function(res){if(res.ok)data=res.data;refresh();});
+  window.api.getAutotrip().then(function(cfg){
+    _autoTripEnabled = cfg.enabled||false;
+    _autoTripPath    = cfg.filePath||'';
+    updateAutoTripUI();
+  });
   // Re-sync every hour
   setInterval(function(){ syncInternetTime().then(function(){ refreshDates(); }); }, 3600000);
 
