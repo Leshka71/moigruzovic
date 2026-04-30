@@ -443,7 +443,7 @@ function addExpense(){initDateField('oDate');var amt=getRaw('oAmt'),date=dpGetRa
 function delEntry(id,kind){if(kind==='trip')data.trips=data.trips.filter(function(e){return e.id!==id;});else data.expenses=data.expenses.filter(function(e){return e.id!==id;});save();refresh();toast('Удалено');}
 
 // HTML builders
-function tripHtml(e){return '<div class="entry"><div class="eic trip">🚛</div><div class="einfo"><div class="edesc">Заказ'+(e.note?' · '+e.note:'')+'</div><div class="edate">'+fmtDate(e.date)+(e.time?' · '+e.time:'')+'</div></div><div class="eamt green">+'+fmt(e.pay)+'</div><button class="delbtn" onclick="delEntry('+e.id+',\'trip\')">×</button></div>';}
+function tripHtml(e){return '<div class="entry"><div class="eic trip">🚛</div><div class="einfo"><div class="edesc">'+(e.note||'Заказ')+'</div><div class="edate">'+fmtDate(e.date)+(e.time?' · '+e.time:'')+'</div></div><div class="eamt green">+'+fmt(e.pay)+'</div><button class="delbtn" onclick="delEntry('+e.id+',\'trip\')">×</button></div>';}
 function expHtml(e){var isFuel=e.type==='fuel',ic=isFuel?'⛽':'🔧',cls=isFuel?'fuel':'exp',clr=isFuel?'yellow':'red',lbl=isFuel?(e.note||'Заправка'):(e.desc||e.cat||'Расход');return '<div class="entry"><div class="eic '+cls+'">'+ic+'</div><div class="einfo"><div class="edesc">'+lbl+'</div><div class="edate">'+fmtDate(e.date)+(e.time?' · '+e.time:'')+'</div></div><div class="eamt '+clr+'">-'+fmt(e.amount)+'</div><button class="delbtn" onclick="delEntry('+e.id+',\'exp\')">×</button></div>';}
 
 // Grouped renderer with day stats
@@ -650,6 +650,18 @@ async function toggleAutoTrip(){
 }
 
 // Handle auto-trip from main process
+// Handle auto-expense (tires, wear, repair, fines, oil)
+if(window.api && window.api.onAutoExpense){
+  window.api.onAutoExpense(function(d){
+    var entry={id:Date.now(),type:'expense',date:d.date,time:d.time,amount:d.amount,desc:d.desc,cat:d.cat};
+    data.expenses.push(entry);
+    data.expenses.sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''));});
+    window.api.save({data:data});
+    refresh();
+    toast('🔧 ' + d.desc + ': -' + fmt(d.amount));
+  });
+}
+
 if(window.api && window.api.onAutoTrip){
   window.api.onAutoTrip(function(d){
     // d = { pay, time, date, note, commission }
